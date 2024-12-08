@@ -5,13 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NER Demo</title>
     <style>
+        /* Some basic styling */
         .result {
             border: 1px solid #ccc;
             padding: 10px;
             margin-top: 20px;
         }
+        /* Context box for showing entity details */
+        #context-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-left: 20px;
+            display: inline-block;
+            width: 300px;
+            height: 150px;
+        }
     </style>
     <script>
+        // This function will display the entity details in the context box
+        function showEntityDetails(entityText, entityTag, probabilities) {
+            const contextBox = document.getElementById("context-box");
+            contextBox.innerHTML = `<h4>Entity: ${entityText}</h4>
+                                    <p><strong>Class:</strong> ${entityTag}</p>
+                                    <strong>Top 3 Probabilities:</strong>
+                                    ${probabilities}`;
+        }
+
         function submitInput(event) {
             event.preventDefault(); // Prevent form submission
 
@@ -52,6 +71,12 @@
     <br>
     <button type="submit">Process</button>
 </form>
+
 <div id="result" class="result"></div>
+
+<!-- Context box for showing entity details -->
+<div id="context-box">
+    <h4>Select an entity to view details</h4>
+</div>
 </body>
 </html>
