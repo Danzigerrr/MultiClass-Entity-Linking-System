@@ -1,9 +1,10 @@
 import requests
 from django.shortcuts import render
-from django.http import HttpResponse
 import time
 import os
 from dotenv import load_dotenv
+from django.http import JsonResponse
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -44,20 +45,18 @@ def infer_with_hf_api(text, model_name="flair/ner-english-ontonotes", max_retrie
 
 
 def index(request):
-    if request.method == "POST":
-        input_text = request.POST.get("text", "")
+    if request.method == "POST" and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # Handle AJAX request
+        user_input = request.POST.get("user_input", "")
+        try:
+            result = infer_with_hf_api(user_input)  # Call the Hugging Face API
+            output_html = generate_html(result, user_input)  # Generate HTML for tagged entities
+            return JsonResponse({"output_html": output_html})  # Return JSON response
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
 
-        # Call Hugging Face API
-        result = infer_with_hf_api(input_text)
-
-        if "error" in result:
-            return HttpResponse(f"Error from API: {result['error']}")
-
-        # Generate HTML with NER results
-        html_output = generate_html(result, input_text)
-        return HttpResponse(html_output)
-
-    return render(request, "NEL_app/index.html")
+    # For initial page load (non-AJAX requests)
+    return render(request, "NEL_app/index.html", {})
 
 
 def generate_html(ner_results, text):
